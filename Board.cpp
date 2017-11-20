@@ -53,7 +53,7 @@ GmState Board::gameState() {
 	}
 	// Check to see if 'o' won
 	if(checkRows(o) || checkCols(o) || checkDiag(o)) {
-		status = O_WON;
+        status = O_WON;
 	}
 
 	// Check to see if game is a draw

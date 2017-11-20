@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-	T3Reader game('o');
+	T3Reader game;
 
 	game.readGameFile("t1.txt");
 
