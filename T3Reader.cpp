@@ -46,31 +46,43 @@ bool T3Reader::readGameFile(string fileName) {
 		// keep looping
        
 		while(gB.gameState() == UNFINISHED && !inputFile.eof()) {
+           
 			// Read move
 			inputFile >> row;
 			inputFile >> col;
             
 			// Make move if square is not occupied
 			if(gB.makeMove(row, col, firstMove)) {
-				// Check if a draw and not end of file
-				if(gB.gameState() == DRAW){
+                // Get game state
+                GmState status = gB.gameState();
+				// Check if a draw
+				if(status == DRAW){
 					inputFile.close();
 					return true;
 				}
 				// Check if 'x' won and not end of file
-				if(gB.gameState() == X_WON && !inputFile.eof()){
+				if(status == X_WON && !inputFile.eof()){
 					inputFile.close();
 					return false;
 				}
+                // Check if 'x' won and end of file
+                if (status == X_WON && inputFile.eof()) {
+                    inputFile.close();
+                    return true;
+                }
 				// Check if 'o' won and not end of file
-				if(gB.gameState() == O_WON && !inputFile.eof()){
+				if(status == O_WON && !inputFile.eof()){
 					inputFile.close();
 					return false;
 				}
-
+                // Check if 'o' won and end of file
+                if (status == O_WON && inputFile.eof()) {
+                    inputFile.close();
+                    return true;
+                }
 				// Change the player
 				changePlayer(firstMove);
-				gB.print();
+				//gB.print();
                
 			}
 			else { // Square occupied, return false
