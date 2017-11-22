@@ -7,7 +7,10 @@
 #include "Board.hpp"
 #include <string>
 #include <fstream>
+#include <iostream>
 
+using std::cout;
+using std::endl;
 using std::string;
 using std::ifstream;
 
@@ -37,66 +40,45 @@ bool T3Reader::readGameFile(string fileName) {
 	ifstream inputFile;
 	// row and column read from file
 	int row, col;
-
+	// Game state object
+	GmState status = UNFINISHED;
 	// Open the file to read from
-	inputFile.open(fileName);
+	inputFile.open(fileName.c_str());
 
 	if(inputFile) { // If able to open the file
 		// While the game is unfinished and not to the end of the file,
 		// keep looping
-       
-		while(gB.gameState() == UNFINISHED && !inputFile.eof()) {
-           
+
+		while(inputFile >> row) { // Keep looping while able to take int from file
+
 			// Read move
-			inputFile >> row;
 			inputFile >> col;
-            
-			// Make move if square is not occupied
-			if(gB.makeMove(row, col, firstMove)) {
-                // Get game state
-                GmState status = gB.gameState();
-				// Check if a draw
-				if(status == DRAW){
-					inputFile.close();
-					return true;
-				}
-				// Check if 'x' won and not end of file
-				if(status == X_WON && !inputFile.eof()){
-					inputFile.close();
-					return false;
-				}
-                // Check if 'x' won and end of file
-                if (status == X_WON && inputFile.eof()) {
-                    inputFile.close();
-                    return true;
-                }
-				// Check if 'o' won and not end of file
-				if(status == O_WON && !inputFile.eof()){
-					inputFile.close();
-					return false;
-				}
-                // Check if 'o' won and end of file
-                if (status == O_WON && inputFile.eof()) {
-                    inputFile.close();
-                    return true;
-                }
-				// Change the player
-				changePlayer(firstMove);
-				//gB.print();
-               
-			}
-			else { // Square occupied, return false
-				inputFile.close();
+
+			// if the game has already finished, but we read another row for moves
+			// then return false, there should not be any more moves.
+			if(status != UNFINISHED) {
 				return false;
+			} else if(gB.makeMove(row, col, firstMove)) { // else if a move can be made
+
+				// Get game state
+				status = gB.gameState();
+
+				changePlayer(firstMove);
+				// gB.print();
+			} else {
+					inputFile.close();
+					return false;
 			}
 		}
-	}
-	else { // File was unable to open
+
+		// success: we either finished with X_WON, O_WON or DRAW:
+		inputFile.close();
+		return true;
+
+	} else { // File was unable to open
 		return false;
 	}
-    
-	// Close file
-	inputFile.close();
+
 	// When game has completed with a winner and no more moves return true
 	return true;
 }
